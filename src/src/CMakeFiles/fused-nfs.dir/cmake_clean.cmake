@@ -1,0 +1,43 @@
+file(REMOVE_RECURSE
+  "CMakeFiles/fused-nfs.dir/fuse_server.cpp.o"
+  "CMakeFiles/fused-nfs.dir/fuse_server.cpp.o.d"
+  "CMakeFiles/fused-nfs.dir/mount/mount_manager.cpp.o"
+  "CMakeFiles/fused-nfs.dir/mount/mount_manager.cpp.o.d"
+  "CMakeFiles/fused-nfs.dir/nfs_server.cpp.o"
+  "CMakeFiles/fused-nfs.dir/nfs_server.cpp.o.d"
+  "CMakeFiles/fused-nfs.dir/protocol/auth.cpp.o"
+  "CMakeFiles/fused-nfs.dir/protocol/auth.cpp.o.d"
+  "CMakeFiles/fused-nfs.dir/protocol/auth_gss.cpp.o"
+  "CMakeFiles/fused-nfs.dir/protocol/auth_gss.cpp.o.d"
+  "CMakeFiles/fused-nfs.dir/protocol/client_session.cpp.o"
+  "CMakeFiles/fused-nfs.dir/protocol/client_session.cpp.o.d"
+  "CMakeFiles/fused-nfs.dir/protocol/compound.cpp.o"
+  "CMakeFiles/fused-nfs.dir/protocol/compound.cpp.o.d"
+  "CMakeFiles/fused-nfs.dir/protocol/operation_log.cpp.o"
+  "CMakeFiles/fused-nfs.dir/protocol/operation_log.cpp.o.d"
+  "CMakeFiles/fused-nfs.dir/protocol/operations.cpp.o"
+  "CMakeFiles/fused-nfs.dir/protocol/operations.cpp.o.d"
+  "CMakeFiles/fused-nfs.dir/protocol/rpc.cpp.o"
+  "CMakeFiles/fused-nfs.dir/protocol/rpc.cpp.o.d"
+  "CMakeFiles/fused-nfs.dir/protocol/rpc_message.cpp.o"
+  "CMakeFiles/fused-nfs.dir/protocol/rpc_message.cpp.o.d"
+  "CMakeFiles/fused-nfs.dir/protocol/session_recovery.cpp.o"
+  "CMakeFiles/fused-nfs.dir/protocol/session_recovery.cpp.o.d"
+  "CMakeFiles/fused-nfs.dir/protocol/transaction_log.cpp.o"
+  "CMakeFiles/fused-nfs.dir/protocol/transaction_log.cpp.o.d"
+  "CMakeFiles/fused-nfs.dir/protocol/xdr.cpp.o"
+  "CMakeFiles/fused-nfs.dir/protocol/xdr.cpp.o.d"
+  "CMakeFiles/fused-nfs.dir/security/auth_manager.cpp.o"
+  "CMakeFiles/fused-nfs.dir/security/auth_manager.cpp.o.d"
+  "CMakeFiles/fused-nfs.dir/security/encryption_manager.cpp.o"
+  "CMakeFiles/fused-nfs.dir/security/encryption_manager.cpp.o.d"
+  "CMakeFiles/fused-nfs.dir/util/logger.cpp.o"
+  "CMakeFiles/fused-nfs.dir/util/logger.cpp.o.d"
+  "libfused-nfs.a"
+  "libfused-nfs.pdb"
+)
+
+# Per-language clean rules from dependency scanning.
+foreach(lang CXX)
+  include(CMakeFiles/fused-nfs.dir/cmake_clean_${lang}.cmake OPTIONAL)
+endforeach()

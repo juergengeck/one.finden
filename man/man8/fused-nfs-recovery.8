@@ -1,0 +1,181 @@
+.TH FUSED-NFS-RECOVERY 8 "March 2024" "Version 1.0" "System Administration"
+.SH NAME
+fused-nfs-recovery \- recovery procedures for fused-nfs
+.SH SYNOPSIS
+.B fused-nfs-recovery
+[\fB\-c\fR \fIconfig\fR]
+[\fB\-\-scan\fR]
+[\fB\-\-verify\fR]
+[\fB\-\-repair\fR]
+[\fB\-\-force\fR]
+.SH DESCRIPTION
+.B fused-nfs-recovery
+provides tools and procedures for recovering from system crashes, data inconsistencies, and other failure scenarios in fused-nfs.
+.SH RECOVERY TYPES
+.SS Automatic Recovery
+The server automatically handles:
+.IP \[bu] 2
+Client session recovery
+.IP \[bu]
+Transaction rollback
+.IP \[bu]
+State consistency verification
+.IP \[bu]
+Data integrity checks
+.SS Manual Recovery
+Manual intervention may be needed for:
+.IP \[bu] 2
+Severe corruption
+.IP \[bu]
+Unrecoverable states
+.IP \[bu]
+Configuration issues
+.IP \[bu]
+Hardware failures
+.SH RECOVERY PROCEDURES
+.SS Client Session Recovery
+.PP
+To recover client sessions:
+.PP
+.nf
+fused-nfs-recovery --scan-sessions
+fused-nfs-recovery --recover-client=CLIENT_ID
+.fi
+.SS Transaction Recovery
+.PP
+To recover from incomplete transactions:
+.PP
+.nf
+fused-nfs-recovery --scan-transactions
+fused-nfs-recovery --replay-transactions
+.fi
+.SS State Recovery
+.PP
+To verify and repair system state:
+.PP
+.nf
+fused-nfs-recovery --verify-state
+fused-nfs-recovery --repair-state
+.fi
+.SS Emergency Recovery
+.PP
+For severe failures:
+.PP
+.nf
+fused-nfs-recovery --emergency-mode
+fused-nfs-recovery --rebuild-state
+.fi
+.SH OPTIONS
+.TP
+.BR \-c ", " \-\-config =\fIFILE\fR
+Use alternate configuration file
+.TP
+.BR \-\-scan
+Scan for inconsistencies
+.TP
+.BR \-\-verify
+Verify system state
+.TP
+.BR \-\-repair
+Attempt automatic repair
+.TP
+.BR \-\-force
+Force recovery actions
+.SH RECOVERY PHASES
+.SS 1. Scan Phase
+.IP \[bu] 2
+Scan transaction logs
+.IP \[bu]
+Identify incomplete operations
+.IP \[bu]
+Detect inconsistencies
+.SS 2. Analysis Phase
+.IP \[bu] 2
+Analyze dependencies
+.IP \[bu]
+Determine recovery order
+.IP \[bu]
+Plan recovery actions
+.SS 3. Recovery Phase
+.IP \[bu] 2
+Execute recovery plan
+.IP \[bu]
+Restore consistent state
+.IP \[bu]
+Verify results
+.SS 4. Verification Phase
+.IP \[bu] 2
+Verify system integrity
+.IP \[bu]
+Check consistency
+.IP \[bu]
+Validate recovery
+.SH DIAGNOSTICS
+Recovery progress and errors are logged to:
+.PP
+.I /var/log/fused-nfs/recovery.log
+.PP
+Monitor recovery status with:
+.PP
+.B fused-nfs-recovery --status
+.SH FILES
+.TP
+.I /var/lib/fused-nfs/recovery/
+Recovery state directory
+.TP
+.I /var/log/fused-nfs/recovery.log
+Recovery log file
+.TP
+.I /etc/fused-nfs/recovery.conf
+Recovery configuration
+.SH ENVIRONMENT
+.TP
+.B FUSED_NFS_RECOVERY_MODE
+Set recovery mode (auto, manual, emergency)
+.TP
+.B FUSED_NFS_RECOVERY_TIMEOUT
+Override recovery timeout
+.SH EXAMPLES
+.PP
+Scan for and repair inconsistencies:
+.PP
+.nf
+# Scan system state
+fused-nfs-recovery --scan
+
+# Verify findings
+fused-nfs-recovery --verify
+
+# Repair issues
+fused-nfs-recovery --repair
+.fi
+.PP
+Emergency recovery after crash:
+.PP
+.nf
+# Enter emergency mode
+fused-nfs-recovery --emergency-mode
+
+# Rebuild state
+fused-nfs-recovery --rebuild-state --force
+
+# Verify recovery
+fused-nfs-recovery --verify
+.fi
+.SH NOTES
+.IP \[bu] 2
+Always backup data before manual recovery
+.IP \[bu]
+Some operations require exclusive access
+.IP \[bu]
+Recovery may take significant time
+.SH BUGS
+Report bugs to: https://github.com/jgeck/fused-nfs/issues
+.SH SEE ALSO
+.BR fused-nfs (8),
+.BR fused-nfs-config (5),
+.BR mount.nfs (8)
+.SH AUTHOR
+Written by Juergen Geck
+.SH COPYRIGHT
+Copyright (C) 2024 Juergen Geck. Licensed under MIT. 

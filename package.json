@@ -1,0 +1,48 @@
+{
+  "name": "one.finden",
+  "version": "0.1.0",
+  "description": "macOS Finder integration for ONE",
+  "main": "lib/index.js",
+  "type": "module",
+  "bin": {
+    "one-finden": "lib/index.js"
+  },
+  "scripts": {
+    "clean": "rm -rf lib",
+    "prebuild": "npm run clean",
+    "build": "tsc -p tsconfig.json",
+    "start": "node --enable-source-maps lib/index.js",
+    "test": "mocha test/**-test.js --exit",
+    "dev": "tsc -p tsconfig.json --watch"
+  },
+  "keywords": [
+    "one",
+    "finder",
+    "macos",
+    "fuse"
+  ],
+  "author": "REFINIO GmbH",
+  "license": "SEE LICENSE IN LICENSE.md",
+  "dependencies": {
+    "@refinio/one.core": "file:../one.core",
+    "@refinio/one.leute.replicant": "file:../one.leute.replicant",
+    "@refinio/one.models": "file:../one.models",
+    "commander": "^12.0.0",
+    "node-fuse-bindings": "^2.12.4",
+    "ws": "^8.16.0"
+  },
+  "devDependencies": {
+    "@types/node": "^20.12.7",
+    "@types/ws": "^8.5.10",
+    "@typescript-eslint/eslint-plugin": "^7.6.0",
+    "@typescript-eslint/parser": "^7.6.0",
+    "eslint": "^8.57.0",
+    "eslint-config-prettier": "^9.1.0",
+    "mocha": "^10.4.0",
+    "prettier": "^3.2.5",
+    "typescript": "^5.4.5"
+  },
+  "engines": {
+    "node": ">=16.0.0"
+  }
+}

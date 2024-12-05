@@ -1,0 +1,273 @@
+.TH FUSED-NFS 5 "March 2024" "Version 1.0" "File Formats"
+.SH NAME
+fused-nfs \- file formats and data structures used by fused-nfs
+.SH DESCRIPTION
+This manual page describes the file formats and data structures used by the
+.B fused-nfs
+system.
+.SH TRANSACTION LOG FORMAT
+.PP
+Transaction logs are stored in binary format with the following structure:
+.PP
+.nf
+struct TransactionHeader {
+    uint32_t magic;      // Magic number (0x46534E46)
+    uint32_t version;    // Format version
+    uint64_t sequence;   // Transaction sequence number
+    uint64_t timestamp;  // Unix timestamp
+    uint32_t size;       // Size of transaction data
+    uint32_t checksum;   // CRC32 of transaction data
+};
+
+struct TransactionEntry {
+    TransactionHeader header;
+    uint8_t data[];     // Variable-length transaction data
+};
+.fi
+.SH OPERATION JOURNAL FORMAT
+.PP
+Operation journal entries are stored in XDR format:
+.PP
+.nf
+struct JournalEntry {
+    uint64_t operation_id;
+    uint32_t procedure;
+    opaque arguments<>;
+    opaque pre_state<>;
+    uint64_t timestamp;
+    uint32_t flags;
+};
+.fi
+.SH STATE FILES
+.SS Session State
+.PP
+Session state is stored in JSON format:
+.PP
+.nf
+{
+    "session_id": "string",
+    "client_id": "string",
+    "creation_time": "ISO8601 timestamp",
+    "last_activity": "ISO8601 timestamp",
+    "sequence_numbers": [
+        uint64_t,
+        ...
+    ],
+    "flags": uint32_t
+}
+.fi
+.SS Recovery State
+.PP
+Recovery state is stored in JSON format:
+.PP
+.nf
+{
+    "recovery_id": "string",
+    "start_time": "ISO8601 timestamp",
+    "phase": "string",
+    "completed_operations": [
+        uint64_t,
+        ...
+    ],
+    "status": "string"
+}
+.fi
+.SH METRICS FORMAT
+.SS Prometheus Metrics
+.PP
+Metrics are exposed in Prometheus text format:
+.PP
+.nf
+# TYPE fused_nfs_operations_total counter
+fused_nfs_operations_total{type="read"} 1234
+fused_nfs_operations_total{type="write"} 5678
+
+# TYPE fused_nfs_operation_errors_total counter
+fused_nfs_operation_errors_total{type="read"} 12
+fused_nfs_operation_errors_total{type="write"} 34
+
+# TYPE fused_nfs_operation_duration_seconds histogram
+fused_nfs_operation_duration_seconds_bucket{le="0.1"} 1000
+fused_nfs_operation_duration_seconds_bucket{le="0.5"} 1500
+fused_nfs_operation_duration_seconds_bucket{le="1.0"} 1800
+fused_nfs_operation_duration_seconds_bucket{le="+Inf"} 2000
+.fi
+.SS JSON Metrics
+.PP
+Metrics are also available in JSON format:
+.PP
+.nf
+{
+    "timestamp": "ISO8601 timestamp",
+    "metrics": {
+        "operations": {
+            "total": uint64_t,
+            "by_type": {
+                "read": uint64_t,
+                "write": uint64_t,
+                ...
+            }
+        },
+        "errors": {
+            "total": uint64_t,
+            "by_type": {
+                ...
+            }
+        },
+        "latency": {
+            "p50": float,
+            "p90": float,
+            "p99": float
+        }
+    }
+}
+.fi
+.SH CONFIGURATION FILES
+.SS Main Configuration
+.PP
+The main configuration file uses YAML format:
+.PP
+.nf
+server:
+    port: 2049
+    threads: 4
+    max_connections: 100
+
+logging:
+    level: info
+    file: /var/log/fused-nfs/server.log
+
+transaction:
+    log_path: /var/log/fused-nfs/txn.log
+    sync_mode: O_SYNC
+    max_age: 24h
+.fi
+.SS Security Configuration
+.PP
+Security settings use YAML format:
+.PP
+.nf
+authentication:
+    type: simple
+    users:
+        - name: admin
+          password_hash: sha256_hash
+
+authorization:
+    type: acl
+    rules:
+        - path: /export
+          permissions: rw
+          users: [admin]
+.fi
+.SS Encryption Configuration
+.PP
+Encryption settings in YAML format:
+.PP
+.nf
+encryption:
+  default_mode: AES_256_GCM
+  key_rotation:
+    interval: 90d
+    auto_rotate: true
+  key_store:
+    path: /etc/fused-nfs/keys
+    backup_path: /etc/fused-nfs/keys/backup
+  modes:
+    - name: AES_256_GCM
+      enabled: true
+      priority: 1
+    - name: AES_256_CBC
+      enabled: true
+      priority: 2
+    - name: CHACHA20
+      enabled: true
+      priority: 3
+  paths:
+    - path: /export/secure
+      mode: AES_256_GCM
+      auto_encrypt: true
+    - path: /export/data
+      mode: AES_256_CBC
+      auto_encrypt: false
+.fi
+.SH SECURITY FORMATS
+.SS Access Rules
+.PP
+Access rules are stored in YAML format:
+.PP
+.nf
+rules:
+  - path: /export/data
+    permissions: READ|WRITE
+    users: [user1, user2]
+    groups: [group1, group2]
+    allow_root: true
+    recursive: true
+
+- path: /export/logs
+  permissions: READ
+  users: [admin]
+  groups: [syslog]
+  allow_root: true
+  recursive: false
+.fi
+
+.SS User Database
+.PP
+User credentials are stored in encrypted format:
+.PP
+.nf
+users:
+  - username: admin
+    password_hash: sha512_hash
+    groups: [admin, users]
+    expiry: "2025-01-01T00:00:00Z"
+    method: SIMPLE
+    enabled: true
+
+- username: service
+  certificate: /path/to/cert.pem
+  groups: [services]
+  method: CERTIFICATE
+  enabled: true
+.fi
+
+.SS Certificate Store
+.PP
+Certificate store configuration:
+.PP
+.nf
+certificates:
+  store_path: /etc/fused-nfs/certs
+  crl_path: /etc/fused-nfs/crl
+  trusted_cas:
+    - /etc/fused-nfs/ca/root.pem
+    - /etc/fused-nfs/ca/intermediate.pem
+  verification:
+    check_crl: true
+    check_ocsp: false
+    max_chain_depth: 3
+.fi
+.SH FILES
+.TP
+.I /var/lib/fused-nfs/journal/
+Operation journal files
+.TP
+.I /var/lib/fused-nfs/sessions/
+Session state files
+.TP
+.I /var/lib/fused-nfs/recovery/
+Recovery state files
+.TP
+.I /var/lib/fused-nfs/metrics/
+Metrics data files
+.SH SEE ALSO
+.BR fused-nfs (1),
+.BR fused-nfs (8),
+.BR fused-nfs-config (5),
+.BR fused-nfs-recovery (8)
+.SH AUTHOR
+Written by Juergen Geck
+.SH COPYRIGHT
+Copyright (C) 2024 Juergen Geck. Licensed under MIT. 

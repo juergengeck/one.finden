@@ -1,0 +1,6 @@
+the idea of fuse-t - and our package as well, we are a replacement for their 
+software - is to not use FUSE, but rather use nfs as the abstraction layer 
+towards macos. eventually one will run on desktops and provide file services 
+similar to dropbox. 
+macfuse cannot be used for that and fuse has become unstable and unusable over
+the years. hence this project.

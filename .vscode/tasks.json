@@ -1,0 +1,31 @@
+{
+    "version": "2.0.0",
+    "tasks": [
+        {
+            "label": "cmake configure",
+            "type": "shell",
+            "command": "cmake -B build -DCMAKE_BUILD_TYPE=Debug",
+            "problemMatcher": []
+        },
+        {
+            "label": "cmake build",
+            "type": "shell",
+            "command": "cmake --build build",
+            "group": {
+                "kind": "build",
+                "isDefault": true
+            },
+            "problemMatcher": ["$gcc"]
+        },
+        {
+            "label": "run tests",
+            "type": "shell",
+            "command": "./build/tests/fused-tests",
+            "dependsOn": ["cmake build"],
+            "group": {
+                "kind": "test",
+                "isDefault": true
+            }
+        }
+    ]
+} 

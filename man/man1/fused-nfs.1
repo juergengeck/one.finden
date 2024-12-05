@@ -1,0 +1,73 @@
+.TH FUSED-NFS 1 "March 2024" "Version 1.0" "User Commands"
+.SH NAME
+fused-nfs \- FUSE-based NFSv4 server implementation
+.SH SYNOPSIS
+.B fused-nfs
+[\fB\-c\fR \fIconfig\fR]
+[\fB\-p\fR \fIport\fR]
+[\fB\-d\fR]
+[\fB\-v\fR]
+\fImount-point\fR
+.SH DESCRIPTION
+.B fused-nfs
+is a userspace NFSv4 server implementation using FUSE. It provides a modern, reliable NFS server with advanced features like atomic operations, strong consistency guarantees, and automatic recovery.
+.SH OPTIONS
+.TP
+.BR \-c ", " \-\-config =\fIFILE\fR
+Use configuration file FILE (default: /etc/fused-nfs/config.yaml)
+.TP
+.BR \-p ", " \-\-port =\fIPORT\fR
+Listen on port PORT (default: 2049)
+.TP
+.BR \-d ", " \-\-debug
+Enable debug logging
+.TP
+.BR \-v ", " \-\-verbose
+Enable verbose output
+.SH FEATURES
+.TP
+.B Atomic Operations
+All file system operations are atomic and durable
+.TP
+.B Strong Consistency
+Provides strong consistency guarantees for all operations
+.TP
+.B Automatic Recovery
+Automatic recovery from crashes and failures
+.TP
+.B Transaction Logging
+All operations are logged for durability and recovery
+.SH FILES
+.TP
+.I /etc/fused-nfs/config.yaml
+Default configuration file
+.TP
+.I /var/log/fused-nfs/server.log
+Server log file
+.TP
+.I /var/log/fused-nfs/recovery.log
+Recovery log file
+.SH ENVIRONMENT
+.TP
+.B FUSED_NFS_CONFIG
+Override default configuration file location
+.TP
+.B FUSED_NFS_LOG_LEVEL
+Set logging level (debug, info, warn, error)
+.SH DIAGNOSTICS
+The server logs to syslog and its own log files. Common issues can be diagnosed using:
+.PP
+.B fused-nfs --debug
+.PP
+This will enable detailed logging of all operations.
+.SH BUGS
+Report bugs to: https://github.com/jgeck/fused-nfs/issues
+.SH AUTHOR
+Written by Juergen Geck
+.SH COPYRIGHT
+Copyright (C) 2024 Juergen Geck. Licensed under MIT.
+.SH SEE ALSO
+.BR mount.nfs (8),
+.BR nfs (5),
+.BR fused-nfs-recovery (8),
+.BR fused-nfs-config (5) 

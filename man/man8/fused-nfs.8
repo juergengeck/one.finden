@@ -1,0 +1,158 @@
+.TH FUSED-NFS 8 "March 2024" "Version 1.0" "System Administration"
+.SH NAME
+fused-nfs \- administration of FUSE-based NFSv4 server
+.SH DESCRIPTION
+This manual describes the administration and maintenance of the fused-nfs server.
+.SH SERVER MANAGEMENT
+.SS Starting the Server
+.PP
+Start the server using systemd:
+.PP
+.nf
+systemctl start fused-nfs
+.fi
+.PP
+Or manually:
+.PP
+.nf
+/usr/sbin/fused-nfs --config /etc/fused-nfs/config.yaml
+.fi
+.SS Stopping the Server
+.PP
+.nf
+systemctl stop fused-nfs
+.fi
+.SS Checking Status
+.PP
+.nf
+systemctl status fused-nfs
+fused-nfs-admin --status
+.fi
+.SH MAINTENANCE
+.SS Backup
+Regular backups should include:
+.IP \[bu] 2
+Configuration files (/etc/fused-nfs/*)
+.IP \[bu]
+Transaction logs (/var/lib/fused-nfs/journal/*)
+.IP \[bu]
+State files (/var/lib/fused-nfs/state/*)
+.PP
+Use the backup tool:
+.PP
+.nf
+fused-nfs-admin --backup
+.fi
+.SS Log Rotation
+Logs are automatically rotated by logrotate. Configuration in:
+.PP
+.I /etc/logrotate.d/fused-nfs
+.SS Health Checks
+Run system health check:
+.PP
+.nf
+fused-nfs-admin --health-check
+.fi
+.SH MONITORING
+.SS Metrics
+View system metrics:
+.PP
+.nf
+fused-nfs-admin --metrics
+curl http://localhost:8080/metrics
+.fi
+.SS Performance
+Monitor performance:
+.PP
+.nf
+fused-nfs-admin --performance
+.fi
+.SS Alerts
+View active alerts:
+.PP
+.nf
+fused-nfs-admin --alerts
+.fi
+.SH TROUBLESHOOTING
+.SS Common Issues
+.IP "Connection Refused"
+Check if server is running and port is open:
+.PP
+.nf
+systemctl status fused-nfs
+ss -tlnp | grep 2049
+.fi
+.IP "Performance Issues"
+Check system resources and metrics:
+.PP
+.nf
+fused-nfs-admin --performance
+top -p $(pidof fused-nfs)
+.fi
+.IP "Data Corruption"
+Run integrity check:
+.PP
+.nf
+fused-nfs-admin --verify
+.fi
+.SS Log Files
+Important log files:
+.TP
+.I /var/log/fused-nfs/server.log
+Main server log
+.TP
+.I /var/log/fused-nfs/access.log
+Access log
+.TP
+.I /var/log/fused-nfs/error.log
+Error log
+.TP
+.I /var/log/fused-nfs/audit.log
+Security audit log
+.SH SECURITY
+.SS Access Control
+Manage users and permissions:
+.PP
+.nf
+fused-nfs-admin --user add <username>
+fused-nfs-admin --user list
+fused-nfs-admin --acl show <path>
+.fi
+.SS Certificates
+Manage TLS certificates:
+.PP
+.nf
+fused-nfs-admin --cert list
+fused-nfs-admin --cert add <cert.pem>
+fused-nfs-admin --cert revoke <serial>
+.fi
+.SS Encryption
+Manage encryption keys:
+.PP
+.nf
+fused-nfs-admin --key list
+fused-nfs-admin --key rotate
+fused-nfs-admin --key revoke <key-id>
+.fi
+.SH FILES
+.TP
+.I /etc/fused-nfs/
+Configuration directory
+.TP
+.I /var/log/fused-nfs/
+Log directory
+.TP
+.I /var/lib/fused-nfs/
+Server state directory
+.TP
+.I /run/fused-nfs/
+Runtime files
+.SH SEE ALSO
+.BR fused-nfs (1),
+.BR fused-nfs-config (5),
+.BR fused-nfs-recovery (8),
+.BR mount.nfs (8)
+.SH AUTHOR
+Written by Juergen Geck
+.SH COPYRIGHT
+Copyright (C) 2024 Juergen Geck. Licensed under MIT. 

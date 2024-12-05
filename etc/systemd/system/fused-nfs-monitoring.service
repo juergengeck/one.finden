@@ -1,0 +1,32 @@
+[Unit]
+Description=FUSE-based NFSv4 Server Monitoring
+Documentation=man:fused-nfs(8)
+After=fused-nfs.service
+Requires=fused-nfs.service
+
+[Service]
+Type=simple
+ExecStart=/usr/sbin/fused-nfs-admin --monitor
+Restart=always
+RestartSec=10s
+
+# Security settings
+ProtectSystem=full
+PrivateTmp=true
+NoNewPrivileges=true
+
+# Resource limits
+LimitNOFILE=16384
+TasksMax=1024
+
+# Runtime directory
+RuntimeDirectory=fused-nfs-monitoring
+RuntimeDirectoryMode=0755
+
+# Logging
+StandardOutput=journal
+StandardError=journal
+SyslogIdentifier=fused-nfs-monitoring
+
+[Install]
+WantedBy=multi-user.target 

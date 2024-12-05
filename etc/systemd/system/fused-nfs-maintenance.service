@@ -1,0 +1,21 @@
+[Unit]
+Description=FUSE-based NFSv4 Server Maintenance
+Documentation=man:fused-nfs(8)
+After=fused-nfs.service
+
+[Service]
+Type=oneshot
+ExecStart=/usr/sbin/fused-nfs-admin --maintenance
+Nice=19
+IOSchedulingClass=best-effort
+IOSchedulingPriority=7
+
+# Security settings
+ProtectSystem=full
+PrivateTmp=true
+NoNewPrivileges=true
+
+# Logging
+StandardOutput=journal
+StandardError=journal
+SyslogIdentifier=fused-nfs-maintenance 

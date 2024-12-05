@@ -1,0 +1,57 @@
+groups:
+  - name: fused-nfs
+    rules:
+      # Resource Usage Alerts
+      - alert: HighCPUUsage
+        expr: rate(process_cpu_seconds_total{job="fused-nfs"}[5m]) > 0.8
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: High CPU usage
+          description: CPU usage is above 80% for 5 minutes
+
+      - alert: HighMemoryUsage
+        expr: process_resident_memory_bytes{job="fused-nfs"} > 1e9
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: High memory usage
+          description: Memory usage is above 1GB
+
+      # Operation Alerts
+      - alert: HighErrorRate
+        expr: rate(fused_nfs_operation_errors_total[5m]) / rate(fused_nfs_operations_total[5m]) > 0.05
+        for: 5m
+        labels:
+          severity: critical
+        annotations:
+          summary: High error rate
+          description: Operation error rate is above 5%
+
+      - alert: SlowOperations
+        expr: histogram_quantile(0.99, rate(fused_nfs_operation_duration_seconds_bucket[5m])) > 1
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: Slow operations
+          description: 99th percentile of operation duration is above 1s
+
+      # Recovery Alerts
+      - alert: RecoveryFailure
+        expr: increase(fused_nfs_recovery_failures_total[1h]) > 0
+        labels:
+          severity: critical
+        annotations:
+          summary: Recovery failure
+          description: Recovery operation failed
+
+      - alert: HighRecoveryTime
+        expr: fused_nfs_recovery_duration_seconds > 300
+        labels:
+          severity: warning
+        annotations:
+          summary: Long recovery time
+          description: Recovery taking longer than 5 minutes 

@@ -1,0 +1,48 @@
+checks:
+  # System Health
+  - name: system_resources
+    type: resource
+    thresholds:
+      cpu_percent: 80
+      memory_percent: 80
+      disk_percent: 90
+
+  # Service Health
+  - name: service_status
+    type: service
+    checks:
+      - systemctl is-active fused-nfs
+      - systemctl is-active fused-nfs-monitoring
+
+  # Operation Health
+  - name: operation_metrics
+    type: metrics
+    thresholds:
+      error_rate: 0.05
+      latency_p99_ms: 1000
+      queue_depth: 1000
+
+  # Recovery Health
+  - name: recovery_status
+    type: recovery
+    checks:
+      - pending_recoveries: 0
+      - failed_recoveries_1h: 0
+
+responses:
+  # Response Actions
+  - condition: system_resources.failed
+    action: notify_admin
+    severity: warning
+
+  - condition: service_status.failed
+    action: attempt_restart
+    severity: critical
+
+  - condition: operation_metrics.failed
+    action: gather_diagnostics
+    severity: warning
+
+  - condition: recovery_status.failed
+    action: trigger_recovery
+    severity: critical 

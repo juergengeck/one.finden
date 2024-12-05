@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>FUSED-NFS Metrics Viewer</title>
+    <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        .metric-card {
+            border: 1px solid #ddd;
+            padding: 15px;
+            margin: 10px;
+            border-radius: 5px;
+        }
+        .chart { height: 300px; margin: 20px 0; }
+        .status { font-weight: bold; }
+        .success { color: green; }
+        .failure { color: red; }
+    </style>
+</head>
+<body>
+    <h1>FUSED-NFS Recovery Metrics</h1>
+    
+    <div class="metric-card">
+        <h2>Current Status</h2>
+        <div id="status"></div>
+    </div>
+
+    <div class="metric-card">
+        <h2>Aggregated Metrics</h2>
+        <div class="tabs">
+            <button onclick="showAggregation('minute')">Last Minute</button>
+            <button onclick="showAggregation('hour')">Last Hour</button>
+            <button onclick="showAggregation('day')">Last 24 Hours</button>
+        </div>
+        <div id="aggregated_metrics"></div>
+    </div>
+
+    <div class="metric-card">
+        <h2>Recovery Success Rate</h2>
+        <div id="success_rate" class="chart"></div>
+    </div>
+
+    <div class="metric-card">
+        <h2>Recovery Statistics</h2>
+        <div id="recovery_stats"></div>
+        <div id="recovery_time" class="chart"></div>
+    </div>
+
+    <div class="metric-card">
+        <h2>Operation Recovery</h2>
+        <div id="operation_recovery" class="chart"></div>
+    </div>
+
+    <div class="metric-card">
+        <h2>Recovery Times</h2>
+        <div id="recovery_times" class="chart"></div>
+    </div>
+
+    <div class="metric-card">
+        <h2>State Recovery Status</h2>
+        <div id="state_recovery" class="chart"></div>
+    </div>
+
+    <script>
+        const UPDATE_INTERVAL = 5000;  // 5 seconds
+        let data = {
+            timestamps: [],
+            success_rates: [],
+            recovery_times: [],
+            operations_recovered: [],
+            recovery_attempts: []
+        };
+
+        let currentAggregation = 'minute';
+
+        function showAggregation(period) {
+            currentAggregation = period;
+            updateMetrics();
+        }
+
+        function updateMetrics() {
+            fetch('http://localhost:8080')
+                .then(response => response.json())
+                .then(metrics => {
+                    // Update status
+                    const status = document.getElementById('status');
+                    status.innerHTML = `
+                        <p>In Recovery: <span class="${metrics.current.in_recovery ? 'failure' : 'success'}">
+                            ${metrics.current.in_recovery ? 'Yes' : 'No'}</span></p>
+                        <p>Active Recoveries: ${metrics.current.active_recoveries}</p>
+                        <p>Success Rate: ${metrics.current.success_rate.toFixed(2)}%</p>
+                    `;
+
+                    // Update charts
+                    data.timestamps.push(new Date(metrics.timestamp));
+                    data.success_rates.push(metrics.current.success_rate);
+                    data.recovery_times.push(metrics.historical.avg_recovery_time);
+
+                    // Keep last 100 points
+                    if (data.timestamps.length > 100) {
+                        data.timestamps.shift();
+                        data.success_rates.shift();
+                        data.recovery_times.shift();
+                    }
+
+                    // Update success rate chart
+                    Plotly.newPlot('success_rate', [{
+                        x: data.timestamps,
+                        y: data.success_rates,
+                        type: 'scatter',
+                        name: 'Success Rate'
+                    }], {
+                        title: 'Recovery Success Rate Over Time',
+                        yaxis: { range: [0, 100] }
+                    });
+
+                    // Update recovery times chart
+                    Plotly.newPlot('recovery_times', [{
+                        x: data.timestamps,
+                        y: data.recovery_times,
+                        type: 'scatter',
+                        name: 'Avg Recovery Time (ms)'
+                    }], {
+                        title: 'Average Recovery Time Over Time'
+                    });
+
+                    // Update aggregated metrics
+                    const aggMetrics = metrics.aggregated[currentAggregation];
+                    document.getElementById('aggregated_metrics').innerHTML = `
+                        <p>Success Rate: ${aggMetrics.success_rate.toFixed(2)}%</p>
+                        <p>Average Recovery Time: ${aggMetrics.avg_recovery_time.toFixed(2)}ms</p>
+                        <p>Total Recoveries: ${aggMetrics.total_recoveries}</p>
+                        <p>States Recovered: ${aggMetrics.states_recovered}</p>
+                        <p>States Lost: ${aggMetrics.states_lost}</p>
+                    `;
+
+                    // Update state recovery pie chart
+                    Plotly.newPlot('state_recovery', [{
+                        values: [
+                            aggMetrics.states_recovered,
+                            aggMetrics.states_lost
+                        ],
+                        labels: ['Recovered', 'Lost'],
+                        type: 'pie'
+                    }], {
+                        title: 'State Recovery Distribution'
+                    });
+
+                    // Update recovery stats
+                    const recovery = metrics.recovery;
+                    document.getElementById('recovery_stats').innerHTML = `
+                        <p>Total Recoveries: ${recovery.total_recoveries}</p>
+                        <p>Success Rate: ${(recovery.success_rate * 100).toFixed(1)}%</p>
+                        <p>Average Recovery Time: ${recovery.avg_recovery_time.toFixed(2)}ms</p>
+                        <p>Operations Recovered: ${recovery.operations_recovered}</p>
+                        <p>Failed Recoveries: ${recovery.failed_recoveries}</p>
+                        <p>Expired Recoveries: ${recovery.expired_recoveries}</p>
+                    `;
+
+                    // Update recovery time chart
+                    data.recovery_times.push(recovery.avg_recovery_time);
+                    if (data.recovery_times.length > 100) {
+                        data.recovery_times.shift();
+                    }
+
+                    Plotly.newPlot('recovery_time', [{
+                        x: data.timestamps,
+                        y: data.recovery_times,
+                        type: 'scatter',
+                        name: 'Recovery Time (ms)'
+                    }], {
+                        title: 'Average Recovery Time Over Time'
+                    });
+
+                    // Update operation recovery chart
+                    data.operations_recovered.push(recovery.operations_recovered);
+                    data.recovery_attempts.push(recovery.total_recoveries);
+                    if (data.operations_recovered.length > 100) {
+                        data.operations_recovered.shift();
+                        data.recovery_attempts.shift();
+                    }
+
+                    Plotly.newPlot('operation_recovery', [{
+                        x: data.timestamps,
+                        y: data.operations_recovered,
+                        type: 'scatter',
+                        name: 'Operations Recovered'
+                    }, {
+                        x: data.timestamps,
+                        y: data.recovery_attempts,
+                        type: 'scatter',
+                        name: 'Recovery Attempts'
+                    }], {
+                        title: 'Operation Recovery Over Time'
+                    });
+                })
+                .catch(error => console.error('Error fetching metrics:', error));
+        }
+
+        // Initial update and start periodic updates
+        updateMetrics();
+        setInterval(updateMetrics, UPDATE_INTERVAL);
+    </script>
+</body>
+</html> 

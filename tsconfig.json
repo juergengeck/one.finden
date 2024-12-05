@@ -1,0 +1,35 @@
+{
+    "compilerOptions": {
+        "allowJs": true,
+        "alwaysStrict": true,
+        "baseUrl": "./",
+        "checkJs": true,
+        "declaration": true,
+        "declarationMap": false,
+        "downlevelIteration": false,
+        "esModuleInterop": true,
+        "forceConsistentCasingInFileNames": true,
+        "importHelpers": false,
+        "isolatedModules": true,
+        "lib": ["esnext", "dom"],
+        "module": "NodeNext",
+        "moduleResolution": "NodeNext",
+        "newLine": "LF",
+        "outDir": "./lib",
+        "removeComments": false,
+        "rootDir": "./src",
+        "sourceMap": true,
+        "strict": true,
+        "target": "ESNext",
+        "useUnknownInCatchVariables": false,
+        "verbatimModuleSyntax": false
+    },
+    "include": [
+        "src/**/*"
+    ],
+    "exclude": [
+        "node_modules",
+        "lib",
+        "test"
+    ]
+}

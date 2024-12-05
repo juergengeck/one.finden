@@ -1,0 +1,42 @@
+[Unit]
+Description=FUSE-based NFSv4 Server
+Documentation=man:fused-nfs(8)
+After=network.target
+Requires=network.target
+Before=nfs-server.service
+
+[Service]
+Type=notify
+ExecStart=/usr/sbin/fused-nfs --config /etc/fused-nfs/config.yaml
+ExecReload=/bin/kill -HUP $MAINPID
+ExecStop=/usr/sbin/fused-nfs-admin --stop
+Restart=on-failure
+RestartSec=5s
+
+# Security settings
+ProtectSystem=full
+ProtectHome=read-only
+PrivateTmp=true
+NoNewPrivileges=true
+CapabilityBoundingSet=CAP_SYS_ADMIN CAP_DAC_OVERRIDE
+
+# Resource limits
+LimitNOFILE=65535
+LimitNPROC=4096
+TasksMax=4096
+
+# Runtime directory
+RuntimeDirectory=fused-nfs
+RuntimeDirectoryMode=0755
+
+# State directory
+StateDirectory=fused-nfs
+StateDirectoryMode=0750
+
+# Logging
+StandardOutput=journal
+StandardError=journal
+SyslogIdentifier=fused-nfs
+
+[Install]
+WantedBy=multi-user.target 

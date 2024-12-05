@@ -1,0 +1,11 @@
+[Unit]
+Description=FUSE-based NFSv4 Server Maintenance Timer
+Documentation=man:fused-nfs(8)
+
+[Timer]
+OnCalendar=daily
+RandomizedDelaySec=1h
+Persistent=true
+
+[Install]
+WantedBy=timers.target 

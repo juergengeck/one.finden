@@ -1,0 +1,136 @@
+.TH FUSED-NFS-CONFIG 5 "March 2024" "Version 1.0" "File Formats"
+.SH NAME
+fused-nfs-config \- configuration file for fused-nfs
+.SH SYNOPSIS
+/etc/fused-nfs/config.yaml
+.SH DESCRIPTION
+The configuration file for
+.B fused-nfs
+uses YAML format and contains settings for server operation, consistency, recovery, and monitoring.
+.SH CONFIGURATION SECTIONS
+.SS Server Settings
+.TP
+.B port
+Port number for NFS service (default: 2049)
+.TP
+.B threads
+Number of worker threads (default: 4)
+.TP
+.B max_connections
+Maximum concurrent connections (default: 100)
+
+.SS Logging
+.TP
+.B log_level
+Logging level: debug, info, warn, error (default: info)
+.TP
+.B log_file
+Path to log file (default: /var/log/fused-nfs/server.log)
+
+.SS Transaction Settings
+.TP
+.B transaction.log_path
+Path to transaction log (default: /var/log/fused-nfs/txn.log)
+.TP
+.B transaction.sync_mode
+Sync mode: O_SYNC, fsync, async (default: O_SYNC)
+.TP
+.B transaction.max_age
+Maximum age of transaction logs (default: 24h)
+
+.SS Consistency Settings
+.TP
+.B consistency.default_level
+Default consistency level: STRICT, SEQUENTIAL, EVENTUAL, RELAXED
+.TP
+.B consistency.verification_interval
+Interval for consistency checks (default: 1s)
+.TP
+.B consistency.sync_timeout
+Timeout for sync operations (default: 5s)
+
+.SS Recovery Settings
+.TP
+.B recovery.auto_recovery
+Enable automatic recovery (default: true)
+.TP
+.B recovery.max_attempts
+Maximum recovery attempts (default: 3)
+.TP
+.B recovery.timeout
+Recovery operation timeout (default: 5m)
+
+.SS Monitoring Settings
+.TP
+.B monitoring.metrics_port
+Port for metrics server (default: 8080)
+.TP
+.B monitoring.update_interval
+Metrics update interval (default: 10s)
+.TP
+.B monitoring.retention_period
+Metrics retention period (default: 24h)
+
+.SH EXAMPLE
+.nf
+# Server configuration
+port: 2049
+threads: 8
+max_connections: 200
+
+# Logging
+log_level: info
+log_file: /var/log/fused-nfs/server.log
+
+# Transaction settings
+transaction:
+  log_path: /var/log/fused-nfs/txn.log
+  sync_mode: O_SYNC
+  max_age: 24h
+
+# Consistency settings
+consistency:
+  default_level: SEQUENTIAL
+  verification_interval: 1s
+  sync_timeout: 5s
+
+# Recovery settings
+recovery:
+  auto_recovery: true
+  max_attempts: 3
+  timeout: 5m
+
+# Monitoring settings
+monitoring:
+  metrics_port: 8080
+  update_interval: 10s
+  retention_period: 24h
+.fi
+
+.SH FILES
+.TP
+.I /etc/fused-nfs/config.yaml
+Default configuration file
+.TP
+.I /etc/fused-nfs/config.d/
+Directory for additional configuration files
+
+.SH ENVIRONMENT
+.TP
+.B FUSED_NFS_CONFIG
+Override default configuration file location
+
+.SH SEE ALSO
+.BR fused-nfs (1),
+.BR fused-nfs (8),
+.BR fused-nfs-recovery (8)
+
+.SH NOTES
+Configuration changes require server restart to take effect unless otherwise noted.
+Some settings can be changed at runtime through the admin interface.
+
+.SH AUTHOR
+Written by Juergen Geck
+
+.SH COPYRIGHT
+Copyright (C) 2024 Juergen Geck. Licensed under MIT. 
